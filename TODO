@@ -1,0 +1,18 @@
+* Automatically remove the staging directory from /tmp/CPANPLUS after
+  a package was built successfully.
+
+* Make sure that system files like /bin/sh cannot be overwritten by malicious
+  distributions.
+
+* List the shared libraries that are used by XS modules in
+  README.SLACKWARE.
+
+* _summary_from_pod() does not return summaries for
+  Class::C3::Componentised, Debug::ShowStuff WWW::Mechanize::TreeBuilder and
+  possibly other modules.
+
+* It seems that Alien::wxWidgets needs to be removed from the system before
+  the package can be re-built.  Needs more investigation.
+
+* The Clipboard distribution depends on xclip, which is available at
+  slackbuilds.org.  The module's test suite fails if xclip is not installed.
