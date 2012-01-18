@@ -20,7 +20,7 @@ use Params::Check qw();
 
 local $Params::Check::VERBOSE = 1;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my $README_SLACKWARE = 'README.SLACKWARE';
 
@@ -215,7 +215,6 @@ sub _fake_install {
 
     my $status  = $dist->status;
     my $module  = $dist->parent;
-    my $cb      = $module->parent;
     my $pkgdesc = $status->_pkgdesc;
     my $srcname = $module->module;
 
@@ -895,7 +894,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.02.
+This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.03.
 
 =head1 SYNOPSIS
 

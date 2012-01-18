@@ -4,7 +4,7 @@
       "Andreas Voegele <andreas@andreasvoegele.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.112150",
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110440",
    "license" : [
       "perl_5"
    ],
@@ -46,11 +46,11 @@
    "provides" : {
       "CPANPLUS::Dist::Slackware" : {
          "file" : "lib/CPANPLUS/Dist/Slackware.pm",
-         "version" : "0.02"
+         "version" : "0.03"
       },
       "CPANPLUS::Dist::Slackware::PackageDescription" : {
          "file" : "lib/CPANPLUS/Dist/Slackware/PackageDescription.pm",
-         "version" : "0.02"
+         "version" : "0.03"
       }
    },
    "release_status" : "stable",
@@ -59,8 +59,9 @@
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
+         "type" : "git",
          "url" : "git://github.com/voegelas/CPANPLUS-Dist-Slackware.git"
       }
    },
-   "version" : "0.02"
+   "version" : "0.03"
 }
