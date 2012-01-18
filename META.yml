@@ -16,15 +16,16 @@ name: CPANPLUS-Dist-Slackware
 provides:
   CPANPLUS::Dist::Slackware:
     file: lib/CPANPLUS/Dist/Slackware.pm
-    version: 0.01
+    version: 0.02
   CPANPLUS::Dist::Slackware::PackageDescription:
     file: lib/CPANPLUS/Dist/Slackware/PackageDescription.pm
-    version: 0.01
+    version: 0.02
 requires:
   CPANPLUS: 0
   Cwd: 0
   File::Find: 0
   File::Spec: 0
+  File::Temp: 0
   IO::Compress::Gzip: 0
   IPC::Cmd: 0
   Locale::Maketext::Simple: 0
@@ -37,4 +38,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/voegelas/CPANPLUS-Dist-Slackware.git
-version: 0.01
+version: 0.02

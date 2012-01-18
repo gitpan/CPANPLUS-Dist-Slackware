@@ -4,12 +4,13 @@ use strict;
 use warnings;
 
 use File::Spec qw();
+use File::Temp qw();
 use Pod::Find qw();
 use Pod::Simple::PullParser qw();
 use POSIX qw();
 use Text::Wrap qw($columns);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my ( $class, %attrs ) = @_;
@@ -206,11 +207,11 @@ sub summary {
 }
 
 sub _webpage {
-    my $self    = shift;
-    my $module  = $self->module;
-    my $srcname = $module->module;
+    my $self   = shift;
+    my $module = $self->module;
+    my $name   = $module->package_name;
 
-    return "https://metacpan.org/module/$srcname";
+    return "https://metacpan.org/release/$name";
 }
 
 sub config_function {
@@ -337,7 +338,7 @@ sub _prereqs {
     my @prereqs;
     my $prereq_ref = $module->status->prereqs;
     if ($prereq_ref) {
-        for my $srcname ( sort { lc $a cmp lc $b } keys %{$prereq_ref} ) {
+        for my $srcname ( sort { uc $a cmp uc $b } keys %{$prereq_ref} ) {
             my $modobj = $cb->module_tree($srcname);
             next if !$modobj;
             next if $modobj->package_is_perl_core;
@@ -362,7 +363,7 @@ sub readme_slackware {
     my $readme = "$title\n$line\n\n";
 
     my $text = 'This package was created by CPANPLUS::Dist::Slackware'
-        . " from the Perl distribution $srcname version $version.\n";
+        . " from the Perl distribution '$srcname' version $version.\n";
     $readme .= Text::Wrap::wrap( q{}, q{}, $text );
 
     my @prereqs = $self->_prereqs;
@@ -388,10 +389,11 @@ sub destdir {
     my $self    = shift;
     my $destdir = $self->{destdir};
     if ( !$destdir ) {
-        my $wrkdir = $ENV{TMP}
+        my $template = 'package-' . $self->name . '-XXXXXXXXXX';
+        my $wrkdir   = $ENV{TMP}
             || File::Spec->catdir( File::Spec->tmpdir, 'CPANPLUS' );
-        $destdir
-            = File::Spec->catdir( $wrkdir, 'package-' . $self->distname );
+        $destdir = File::Temp::tempdir( $template, DIR => $wrkdir );
+        $self->{destdir} = $destdir;
     }
     return $destdir;
 }
@@ -407,7 +409,7 @@ Slackware compatible package
 =head1 VERSION
 
 This documentation refers to C<CPANPLUS::Dist::Slackware::PackageDescription>
-version 0.01.
+version 0.02.
 
 =head1 SYNOPSIS
 
@@ -442,7 +444,7 @@ F<Changes>.
 
 Returns a newly constructed object.
 
-    $pkdesc = CPANPLUS::Dist::Slackware::PackageDescription->new(
+    $pkgdesc = CPANPLUS::Dist::Slackware::PackageDescription->new(
         module => $modobj,
         %attrs
     );
@@ -557,7 +559,7 @@ configuration files provided by the package.
 =item B<< $pkgdesc->destdir >>
 
 Returns the staging directory where the distribution is temporarily installed,
-e.g. F</tmp/CPANPLUS/package-perl-Some-Module-0.01>.  Defaults to a
+e.g. F</tmp/CPANPLUS/package-perl-Some-Module-01yEr7X43K>.  Defaults to a
 package-specific subdirectory in F<$TMP> or F</tmp/CPANPLUS>.
 
 =back
@@ -573,9 +575,9 @@ variables.
 
 =head1 DEPENDENCIES
 
-Requires the modules C<File::Spec>, C<Pod::Find>, C<Pod::Simple>, C<POSIX>,
-and C<Text::Wrap>, which are all provided by Perl 5.10.  If available, the
-module C<Parse::CPAN::Meta> is used.
+Requires the modules C<File::Spec>, C<File::Temp>, C<Pod::Find>,
+C<Pod::Simple>, C<POSIX>, and C<Text::Wrap>, which are all provided by Perl
+5.10.  If available, the module C<Parse::CPAN::Meta> is used.
 
 =head1 INCOMPATIBILITIES
 

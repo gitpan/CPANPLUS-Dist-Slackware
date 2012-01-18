@@ -20,21 +20,9 @@ use Params::Check qw();
 
 local $Params::Check::VERBOSE = 1;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my $README_SLACKWARE = 'README.SLACKWARE';
-
-my $PERL_MM_OPT = << 'END_PERL_MM_OPT';
-INSTALLDIRS=vendor
-INSTALLVENDORMAN1DIR=/usr/man/man1
-INSTALLVENDORMAN3DIR=/usr/man/man3
-END_PERL_MM_OPT
-
-my $PERL_MB_OPT = << 'END_PERL_MB_OPT';
---installdirs vendor
---config installvendorman1dir=/usr/man/man1
---config installvendorman3dir=/usr/man/man3
-END_PERL_MB_OPT
 
 my $NONROOT_WARNING = <<'END_NONROOT_WARNING';
 In order to manage packages as a non-root user, which is highly recommended,
@@ -93,8 +81,8 @@ sub prepare {
         # CPANPLUS::Dist:MM does not accept multiple options in
         # makemakerflags.  Thus all options have to be passed via
         # environment variables.
-        local $ENV{PERL_MM_OPT}   = $PERL_MM_OPT;
-        local $ENV{PERL_MB_OPT}   = $PERL_MB_OPT;
+        local $ENV{PERL_MM_OPT}   = $dist->_perl_mm_opt;
+        local $ENV{PERL_MB_OPT}   = $dist->_perl_mb_opt;
         local $ENV{MODULEBUILDRC} = 'NONE';
 
         # Unfortunately, the Module::Build version shipped with Slackware
@@ -103,7 +91,7 @@ sub prepare {
         # installed.
         if ( $PERL_VERSION lt v5.12.0 ) {
             my %hash = @params;
-            $hash{buildflags} = $PERL_MB_OPT;
+            $hash{buildflags} = $ENV{PERL_MB_OPT};
             @params = %hash;
         }
 
@@ -145,7 +133,7 @@ sub create {
 
     $dist->_make_installdir($param_ref) or return;
 
-    $dist->_write_config_files_to_doinst_sh($param_ref) or return;
+    $dist->_write_config_files($param_ref) or return;
 
     $dist->_write_slack_desc($param_ref) or return;
 
@@ -176,14 +164,35 @@ sub _parse_params {
     {
         local $Params::Check::ALLOW_UNKNOWN = 1;
         my $tmpl = {
-            force   => { default => $conf->get_conf('force') },
-            verbose => { default => $conf->get_conf('verbose') },
-            make    => { default => $conf->get_program('make') },
-            perl    => { default => $EXECUTABLE_NAME },
+            force       => { default => $conf->get_conf('force') },
+            verbose     => { default => $conf->get_conf('verbose') },
+            keep_source => { default => 0 },
+            make        => { default => $conf->get_program('make') },
+            perl        => { default => $EXECUTABLE_NAME },
         };
         $param_ref = Params::Check::check( $tmpl, \%params ) or return;
     }
     return $param_ref;
+}
+
+sub _perl_mm_opt {
+    my $dist = shift;
+
+    return << 'END_PERL_MM_OPT';
+INSTALLDIRS=vendor
+INSTALLVENDORMAN1DIR=/usr/man/man1
+INSTALLVENDORMAN3DIR=/usr/man/man3
+END_PERL_MM_OPT
+}
+
+sub _perl_mb_opt {
+    my $dist = shift;
+
+    return << 'END_PERL_MB_OPT';
+--installdirs vendor
+--config installvendorman1dir=/usr/man/man1
+--config installvendorman3dir=/usr/man/man3
+END_PERL_MB_OPT
 }
 
 sub _run_perl {
@@ -236,7 +245,7 @@ sub _fake_install {
         return;
     }
 
-    msg( loc( q{Staging '%1' in '%2'}, $srcname, $pkgdesc->destdir ) );
+    msg( loc( q{Staging '%1' in '%2'}, $srcname, $destdir ) );
 
     return $dist->_run_command( $cmd,
         { dir => $wrksrc, verbose => $verbose } );
@@ -251,10 +260,12 @@ sub _makepkg {
     my $conf    = $cb->configure_object;
     my $pkgdesc = $status->_pkgdesc;
 
-    my $verbose = $param_ref->{verbose};
-    my $destdir = $pkgdesc->destdir;
+    my $verbose    = $param_ref->{verbose};
+    my $destdir    = $pkgdesc->destdir;
+    my $outputname = $pkgdesc->outputname;
 
-    my $cmd = [ '/sbin/makepkg', '-l', 'y', '-c', 'y', $pkgdesc->outputname ];
+    my $needs_chown = 0;
+    my $cmd = [ '/sbin/makepkg', '-l', 'y', '-c', 'y', $outputname ];
     if ( $EFFECTIVE_USER_ID > 0 ) {
         my $fakeroot = $status->_fakeroot_cmd;
         if ($fakeroot) {
@@ -264,9 +275,7 @@ sub _makepkg {
             my $sudo = $conf->get_program('sudo');
             if ($sudo) {
                 unshift @{$cmd}, $sudo;
-
-                my $chown = [ $sudo, '/bin/chown', '-R', '0:0', $destdir ];
-                $dist->_run_command($chown) or return;
+                $needs_chown = 1;
             }
             else {
                 error( loc($NONROOT_WARNING) );
@@ -275,10 +284,58 @@ sub _makepkg {
         }
     }
 
-    msg( loc( q{Creating package '%1'}, $pkgdesc->outputname ) );
+    msg( loc( q{Creating package '%1'}, $outputname ) );
 
-    return $dist->_run_command( $cmd,
-        { dir => $destdir, verbose => $verbose } );
+    my $orig_uid = $UID;
+    my $orig_gid = ( split /\s+/, $GID )[0];
+    if ($needs_chown) {
+        my @stat = $dist->_stat($destdir);
+        return if !@stat;
+        $orig_uid = $stat[4];
+        $orig_gid = $stat[5];
+
+        $dist->_chown_recursively( 0, 0, $destdir ) or return;
+    }
+
+    my $fail = 0;
+    if (!$dist->_run_command(
+            $cmd, { dir => $destdir, verbose => $verbose }
+        )
+        )
+    {
+        ++$fail;
+    }
+
+    if ($needs_chown) {
+        if ( -d $destdir ) {
+            if (!$dist->_chown_recursively( $orig_uid, $orig_gid, $destdir ) )
+            {
+                ++$fail;
+            }
+        }
+        if ( -f $outputname ) {
+            if (!$dist->_chown_recursively(
+                    $orig_uid, $orig_gid, $outputname
+                )
+                )
+            {
+                ++$fail;
+            }
+        }
+    }
+
+    if ( !$param_ref->{keep_source} ) {
+
+        # Keep the staging directory if something failed.
+        if ( !$fail ) {
+            msg( loc( q{Removing '%1'}, $destdir ) );
+            if ( !$cb->_rmdir( dir => $destdir ) ) {
+                ++$fail;
+            }
+        }
+    }
+
+    return ( $fail ? 0 : 1 );
 }
 
 sub _installpkg {
@@ -290,12 +347,11 @@ sub _installpkg {
     my $conf    = $cb->configure_object;
     my $pkgdesc = $status->_pkgdesc;
 
-    my $verbose = $param_ref->{verbose};
+    my $verbose    = $param_ref->{verbose};
+    my $outputname = $pkgdesc->outputname;
 
-    my $cmd = [
-        '/sbin/upgradepkg', '--install-new',
-        '--reinstall',      $pkgdesc->outputname
-    ];
+    my $cmd
+        = [ '/sbin/upgradepkg', '--install-new', '--reinstall', $outputname ];
     if ( $EFFECTIVE_USER_ID > 0 ) {
         my $sudo = $conf->get_program('sudo');
         if ($sudo) {
@@ -307,7 +363,7 @@ sub _installpkg {
         }
     }
 
-    msg( loc( q{Installing package '%1'}, $pkgdesc->outputname ) );
+    msg( loc( q{Installing package '%1'}, $outputname ) );
 
     return $dist->_run_command( $cmd, { verbose => $verbose } );
 }
@@ -378,17 +434,13 @@ sub _install_docfiles {
     # Create README.SLACKWARE.
     my $readme = $pkgdesc->readme_slackware;
     my $readmefile = File::Spec->catfile( $docdir, $README_SLACKWARE );
-    $dist->_with_output_to_file( $readmefile, '>',
-        sub { print $readme or die "Write error\n" } )
-        or return;
+    $dist->_write_to_file( '>', $readmefile, $readme ) or return;
 
     # Create perl-Some-Module.SlackBuild.
     my $script = $pkgdesc->build_script;
     my $scriptfile
         = File::Spec->catfile( $docdir, $pkgdesc->name . '.SlackBuild' );
-    $dist->_with_output_to_file( $scriptfile, '>',
-        sub { print $script or die "Write error\n" } )
-        or return;
+    $dist->_write_to_file( '>', $scriptfile, $script ) or return;
 
     # Copy docfiles like README and Changes.
     my $fail = 0;
@@ -402,18 +454,76 @@ sub _install_docfiles {
     return ( $fail ? 0 : 1 );
 }
 
+sub _verify_filename {
+    my ( $dist, $filename ) = @_;
+
+    my $module  = $dist->parent;
+    my $srcname = $module->module;
+
+    my $general_whitelist = qr{ /(?:etc|usr|var|opt)/ }xms;
+
+    my $standard_whitelist = qr{
+        ^(?:
+            /etc/
+            | /usr/$
+            | /usr/(?:bin|doc|man)/
+            | /usr/(?:lib(?:64)?|share)/(?:perl5/|$)
+        )
+    }xms;
+
+    my $command = qr{ /usr/bin/. }xms;
+
+    $filename = substr $filename, 1;    # Remove leading '.'.
+    if ( $filename !~ $general_whitelist ) {
+        error(
+            loc(q{Blacklisted file found in '%1': '%2'}, $srcname,
+                $filename
+            )
+        );
+        return;
+    }
+    elsif ( $filename =~ $command ) {
+        msg( loc( q{'%1' provides command '%2'}, $srcname, $filename ) );
+    }
+    elsif ( $filename !~ $standard_whitelist ) {
+        msg( loc( q{'%1' provides extra file '%2'}, $srcname, $filename ) );
+    }
+    return 1;
+}
+
 sub _process_installed_files {
     my ( $dist, $param_ref ) = @_;
 
     my $status  = $dist->status;
+    my $module  = $dist->parent;
+    my $cb      = $module->parent;
     my $pkgdesc = $status->_pkgdesc;
+
+    my $destdir = $pkgdesc->destdir;
+
+    my $orig_dir = Cwd::cwd();
+    if ( !$cb->_chdir( dir => $destdir ) ) {
+        return;
+    }
 
     my $fail   = 0;
     my $wanted = sub {
         my $filename = $_;
 
+        return if $filename eq q{.};
+
         my @stat = $dist->_lstat($filename);
         return if !@stat;
+
+        # Check whether the distribution tries to install files in
+        # non-standard directories.
+        my $pathname = $File::Find::name;
+        if ( -d _ ) {
+            $pathname .= q{/};
+        }
+        if ( !$dist->_verify_filename($pathname) ) {
+            ++$fail;
+        }
 
         # Skip symbolic links.
         return if -l _;
@@ -440,17 +550,19 @@ sub _process_installed_files {
             }
             else {
                 my $type = $dist->_filetype($filename);
-                if ($type) {
-                    if ( $type =~ /ELF.+(?:executable|shared object)/s ) {
-                        if ( !$dist->_strip($filename) ) {
-                            ++$fail;
-                        }
+                if ( $type =~ /ELF.+(?:executable|shared object)/s ) {
+                    if ( !$dist->_strip($filename) ) {
+                        ++$fail;
                     }
                 }
             }
         }
     };
-    File::Find::finddepth( $wanted, $pkgdesc->destdir );
+    File::Find::finddepth( $wanted, q{.} );
+
+    if ( !$cb->_chdir( dir => $orig_dir ) ) {
+        ++$fail;
+    }
 
     return ( $fail ? 0 : 1 );
 }
@@ -467,7 +579,7 @@ sub _make_installdir {
     return $cb->_mkdir( dir => $installdir );
 }
 
-sub _write_config_files_to_doinst_sh {
+sub _write_config_files {
     my ( $dist, $param_ref ) = @_;
 
     my $status  = $dist->status;
@@ -506,8 +618,10 @@ sub _write_config_files_to_doinst_sh {
         ++$fail;
     }
 
-    return 0 if $fail;
+    return   if $fail;
     return 1 if !@conffiles;
+
+    @conffiles = sort { uc $a cmp uc $b } @conffiles;
 
     # List the configuration files in README.SLACKWARE.
     $dist->_write_config_files_to_readme_slackware(@conffiles) or return;
@@ -521,8 +635,7 @@ sub _write_config_files_to_doinst_sh {
 
     my $installdir = File::Spec->catdir( $pkgdesc->destdir, 'install' );
     my $doinstfile = File::Spec->catfile( $installdir, 'doinst.sh' );
-    return $dist->_with_output_to_file( $doinstfile, '>',
-        sub { print $script or die "Write error\n" } );
+    return $dist->_write_to_file( '>', $doinstfile, $script );
 }
 
 sub _write_config_files_to_readme_slackware {
@@ -538,8 +651,7 @@ sub _write_config_files_to_readme_slackware {
 
     my $docdir = File::Spec->catdir( $pkgdesc->destdir, $pkgdesc->docdir );
     my $readmefile = File::Spec->catfile( $docdir, $README_SLACKWARE );
-    return $dist->_with_output_to_file( $readmefile, '>>',
-        sub { print $readme or die "Write error\n" } );
+    return $dist->_write_to_file( '>>', $readmefile, $readme );
 }
 
 sub _write_slack_desc {
@@ -553,12 +665,11 @@ sub _write_slack_desc {
     my $installdir = File::Spec->catdir( $pkgdesc->destdir, 'install' );
     my $descfile = File::Spec->catfile( $installdir, 'slack-desc' );
     my $desc = $pkgdesc->slack_desc;
-    return $dist->_with_output_to_file( $descfile, '>',
-        sub { print $desc or die "Write error\n" } );
+    return $dist->_write_to_file( '>', $descfile, $desc );
 }
 
-sub _with_output_to_file {
-    my ( $dist, $filename, $mode, $coderef ) = @_;
+sub _write_to_file {
+    my ( $dist, $mode, $filename, $text ) = @_;
 
     my $fh;
     if ( !open $fh, $mode, $filename ) {
@@ -567,12 +678,11 @@ sub _with_output_to_file {
         return;
     }
 
-    my $fail = not eval {
-        local *STDOUT = $fh;
-        &{$coderef};
-    };
-    if ($fail) {
-        error( loc( q{Could not write to file '%1'}, $filename ) );
+    my $fail = 0;
+    if ( !print {$fh} $text ) {
+        error(
+            loc( q{Could not write to file '%1': %2}, $filename, $OS_ERROR )
+        );
         ++$fail;
     }
 
@@ -633,13 +743,20 @@ sub _filetype {
     my ( $dist, $filename ) = @_;
 
     my $status = $dist->status;
-    my $file_cmd = $status->_file_cmd || return;
 
-    my $cmd = [ $file_cmd, '-b', $filename ];
     my $filetype;
-    $dist->_run_command( $cmd, { buffer => \$filetype } ) or return;
+    my $file_cmd = $status->_file_cmd;
+    if ($file_cmd) {
+        my $cmd = [ $file_cmd, '-b', $filename ];
+        if ( !$dist->_run_command( $cmd, { buffer => \$filetype } ) ) {
+            undef $filetype;
+        }
+    }
     if ($filetype) {
         chomp $filetype;
+    }
+    else {
+        $filetype = 'data';
     }
     return $filetype;
 }
@@ -676,6 +793,16 @@ sub _gzip {
     return ( $fail ? 0 : 1 );
 }
 
+sub _stat {
+    my ( $dist, $filename ) = @_;
+
+    my @stat = stat $filename;
+    if ( !@stat ) {
+        error( loc( q{Could not stat '%1': %2}, $filename, $OS_ERROR ) );
+    }
+    return @stat;
+}
+
 sub _lstat {
     my ( $dist, $filename ) = @_;
 
@@ -697,6 +824,27 @@ sub _chmod {
         }
     }
     return ( $fail ? 0 : 1 );
+}
+
+sub _chown_recursively {
+    my ( $dist, $uid, $gid, @filenames ) = @_;
+
+    my $module = $dist->parent;
+    my $cb     = $module->parent;
+    my $conf   = $cb->configure_object;
+
+    my $cmd = [ '/bin/chown', '-R', "$uid:$gid", @filenames ];
+    if ( $EFFECTIVE_USER_ID > 0 ) {
+        my $sudo = $conf->get_program('sudo');
+        if ($sudo) {
+            unshift @{$cmd}, $sudo;
+        }
+        else {
+            error( loc($NONROOT_WARNING) );
+            return;
+        }
+    }
+    return $dist->_run_command($cmd);
 }
 
 sub _unlink {
@@ -747,7 +895,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.01.
+This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.02.
 
 =head1 SYNOPSIS
 
@@ -825,8 +973,8 @@ by the system administrator.
 
 =item B<< CPANPLUS::Dist::Slackware->format_available >>
 
-Returns a boolean indicating whether or not Slackware's package management
-commands are available.
+Returns a boolean indicating whether or not the Slackware Linux package
+management tools are available.
 
     $is_available = CPANPLUS::Dist::Slackware->format_available();
 
@@ -845,9 +993,9 @@ Runs C<perl Makefile.PL> or C<perl Build.PL> and determines what prerequisites
 this distribution declared.
 
     $success = $dist->prepare(
-        perl           => '/path/to/perl',
-        force          => (1|0),
-        verbose        => (1|0)
+        perl    => '/path/to/perl',
+        force   => (1|0),
+        verbose => (1|0)
     );
 
 If you set C<force> to true, it will go over all the stages of the C<prepare>
@@ -865,11 +1013,12 @@ a Slackware compatible package.  Also scans for and attempts to satisfy any
 prerequisites the module may have.
 
     $success = $dist->create(
-        perl       => '/path/to/perl',
-        make       => '/path/to/make',
-        skiptest   => (1|0),
-        force      => (1|0),
-        verbose    => (1|0)
+        perl        => '/path/to/perl',
+        make        => '/path/to/make',
+        skiptest    => (1|0),
+        force       => (1|0),
+        verbose     => (1|0)
+        keep_source => (1|0)
     );
 
 If you set C<skiptest> to true, the test stage will be skipped.  If you set
@@ -905,7 +1054,12 @@ or not configured.
 
 =item B<< You do not have '/sbin/makepkg'... >>
 
-The Slackware package management commands are not installed.
+The Slackware Linux package management tools are not installed.
+
+=item B<< Blacklisted file found... >>
+
+Distributions are not allowed to install files outside of F</etc>, F</usr>,
+F</var> and F</opt>.
 
 =item B<< Could not chdir into DIR >>
 
@@ -956,7 +1110,7 @@ C<CPANPLUS::Dist::Build>.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Similar to the build scripts provided by L<http://slackbuilds.org/>
+Similar to the build scripts provided by L<http://slackbuilds.org/>,
 C<CPANPLUS::Dist::Slackware> respects the following environment variables:
 
 =over 4
@@ -995,8 +1149,8 @@ recursively.
 
 =head1 DEPENDENCIES
 
-Requires the Slackware package management commands C<makepkg>, C<installpkg>,
-C<updatepkg>, and C<removepkg>.  Other required GNU/Linux commands are
+Requires the Slackware Linux package management tools C<makepkg>,
+C<installpkg>, C<updatepkg>, and C<removepkg>.  Other required commands are
 C<file>, C<gcc>, C<make>, and C<strip>.
 
 In order to manage packages as a non-root user, which is highly recommended,
@@ -1010,8 +1164,8 @@ Perl 5.10.
 
 =head1 INCOMPATIBILITIES
 
-Packages created with C<CPANPLUS::Dist::Slackware> may conflict with
-packages from L<http://slackbuilds.org/>.
+Packages created with C<CPANPLUS::Dist::Slackware> may conflict with packages
+from L<http://slackbuilds.org/> and packages created with C<cpan2tgz>.
 
 =head1 SEE ALSO
 
