@@ -7,12 +7,13 @@ use English qw( -no_match_vars );
 
 use File::Spec qw();
 use File::Temp qw();
+use Module::CoreList qw();
 use Pod::Find qw();
 use Pod::Simple::PullParser qw();
 use POSIX qw();
 use Text::Wrap qw($columns);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub new {
     my ( $class, %attrs ) = @_;
@@ -344,9 +345,10 @@ sub _prereqs {
             my $modobj = $cb->module_tree($srcname);
             next if !$modobj;
             next if $modobj->package_is_perl_core;
+            my $version = $prereq_ref->{$srcname};
+            next if Module::CoreList->first_release( $srcname, $version );
 
-            push @prereqs,
-                { srcname => $srcname, version => $prereq_ref->{$srcname} };
+            push @prereqs, { srcname => $srcname, version => $version };
         }
     }
     return @prereqs;
@@ -361,22 +363,24 @@ sub readme_slackware {
     $columns = 78;
 
     my $title  = "$srcname for Slackware Linux";
-    my $line   = q{*} x length $title;
+    my $line   = q{=} x length $title;
     my $readme = "$title\n$line\n\n";
 
-    my $text = 'This package was created by CPANPLUS::Dist::Slackware'
-        . " from the Perl distribution '$srcname' version $version.\n";
-    $readme .= Text::Wrap::wrap( q{}, q{}, $text );
-
     my @prereqs = $self->_prereqs;
+
+    my $text = 'This package was created by CPANPLUS::Dist::Slackware'
+        . " from the Perl distribution '$srcname' version $version.";
     if (@prereqs) {
-        $readme
-            .= "\n"
-            . "Building this package required the following Perl modules:\n"
-            . "\n";
+        $text .= '  It requires the following Perl modules:';
+    }
+    $readme .= Text::Wrap::wrap( q{}, q{}, $text ) . "\n";
+
+    if (@prereqs) {
+        $readme .= "\n";
         for my $prereq (@prereqs) {
-            $readme .= $prereq->{srcname};
+            my $prereq_srcname = $prereq->{srcname};
             my $prereq_version = $prereq->{version};
+            $readme .= "* $prereq_srcname";
             if ( $prereq_version ne '0' ) {
                 $readme .= " >= $prereq_version";
             }
@@ -402,6 +406,8 @@ sub destdir {
                 or die "Could not create directory '$wrkdir': $OS_ERROR\n";
         }
         $destdir = File::Temp::tempdir( $template, DIR => $wrkdir );
+        chmod oct '0755', $destdir
+            or die "Could not chmod '$destdir': $OS_ERROR\n";
         $self->{destdir} = $destdir;
     }
     return $destdir;
@@ -418,7 +424,7 @@ Slackware compatible package
 =head1 VERSION
 
 This documentation refers to C<CPANPLUS::Dist::Slackware::PackageDescription>
-version 0.03.
+version 0.04.
 
 =head1 SYNOPSIS
 

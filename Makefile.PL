@@ -3,26 +3,28 @@ require 5.010;
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-  'PL_FILES' => {},
-  'INSTALLDIRS' => 'site',
   'NAME' => 'CPANPLUS::Dist::Slackware',
-  'EXE_FILES' => [],
   'VERSION_FROM' => 'lib/CPANPLUS/Dist/Slackware.pm',
   'PREREQ_PM' => {
-                   'Locale::Maketext::Simple' => 0,
-                   'IO::Compress::Gzip' => 0,
-                   'File::Spec' => 0,
-                   'Pod::Simple' => 0,
-                   'IPC::Cmd' => 0,
-                   'Params::Check' => 0,
-                   'Test::More' => 0,
-                   'POSIX' => 0,
-                   'File::Find' => 0,
-                   'Text::Wrap' => 0,
-                   'File::Temp' => 0,
                    'CPANPLUS' => 0,
+                   'Cwd' => 0,
+                   'File::Find' => 0,
+                   'File::Spec' => 0,
+                   'File::Temp' => 0,
+                   'IO::Compress::Gzip' => 0,
+                   'IPC::Cmd' => 0,
+                   'Locale::Maketext::Simple' => 0,
+                   'Module::CoreList' => 0,
+                   'Module::Pluggable' => 0,
+                   'POSIX' => 0,
+                   'Params::Check' => 0,
                    'Pod::Find' => 0,
-                   'Cwd' => 0
-                 }
+                   'Pod::Simple' => 0,
+                   'Test::More' => 0,
+                   'Text::Wrap' => 0
+                 },
+  'INSTALLDIRS' => 'site',
+  'EXE_FILES' => [],
+  'PL_FILES' => {}
 )
 ;

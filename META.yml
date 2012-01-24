@@ -7,7 +7,7 @@ build_requires:
 configure_requires:
   Module::Build: 0.38
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110440'
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.113640'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,10 +16,16 @@ name: CPANPLUS-Dist-Slackware
 provides:
   CPANPLUS::Dist::Slackware:
     file: lib/CPANPLUS/Dist/Slackware.pm
-    version: 0.03
+    version: 0.04
   CPANPLUS::Dist::Slackware::PackageDescription:
     file: lib/CPANPLUS/Dist/Slackware/PackageDescription.pm
-    version: 0.03
+    version: 0.04
+  CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets:
+    file: lib/CPANPLUS/Dist/Slackware/Plugin/Alien/wxWidgets.pm
+    version: 0.02
+  CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML:
+    file: lib/CPANPLUS/Dist/Slackware/Plugin/YAML/LibYAML.pm
+    version: 0.02
 requires:
   CPANPLUS: 0
   Cwd: 0
@@ -29,6 +35,8 @@ requires:
   IO::Compress::Gzip: 0
   IPC::Cmd: 0
   Locale::Maketext::Simple: 0
+  Module::CoreList: 0
+  Module::Pluggable: 0
   POSIX: 0
   Params::Check: 0
   Pod::Find: 0
@@ -38,4 +46,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/voegelas/CPANPLUS-Dist-Slackware.git
-version: 0.03
+version: 0.04
