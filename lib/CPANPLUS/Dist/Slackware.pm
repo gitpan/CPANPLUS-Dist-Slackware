@@ -21,9 +21,7 @@ use Params::Check qw();
 
 local $Params::Check::VERBOSE = 1;
 
-our $VERSION = '0.04';
-
-my $README_SLACKWARE = 'README.SLACKWARE';
+our $VERSION = '0.05';
 
 my $NONROOT_WARNING = <<'END_NONROOT_WARNING';
 In order to manage packages as a non-root user, which is highly recommended,
@@ -141,11 +139,11 @@ sub create {
 
     $dist->_make_installdir($param_ref) or return;
 
-    $dist->_write_config_files($param_ref) or return;
-
     $dist->_write_slack_desc($param_ref) or return;
 
     $dist->_call_plugins('pre_package') or return;
+
+    $dist->_write_config_files($param_ref) or return;
 
     $dist->_makepkg($param_ref) or return;
 
@@ -449,13 +447,12 @@ sub _install_docfiles {
 
     my @docfiles = $pkgdesc->docfiles;
 
-    # Create docdir.
     my $docdir = File::Spec->catdir( $pkgdesc->destdir, $pkgdesc->docdir );
     $cb->_mkdir( dir => $docdir ) or return;
 
     # Create README.SLACKWARE.
     my $readme = $pkgdesc->readme_slackware;
-    my $readmefile = File::Spec->catfile( $docdir, $README_SLACKWARE );
+    my $readmefile = File::Spec->catfile( $docdir, 'README.SLACKWARE' );
     $dist->_write_file( $readmefile, $readme ) or return;
 
     # Create perl-Some-Module.SlackBuild.
@@ -464,7 +461,7 @@ sub _install_docfiles {
         = File::Spec->catfile( $docdir, $pkgdesc->name . '.SlackBuild' );
     $dist->_write_file( $scriptfile, $script ) or return;
 
-    # Copy docfiles like README and Changes.
+    # Copy files like README and Changes.
     my $fail = 0;
     for my $docfile (@docfiles) {
         my $from = File::Spec->catfile( $wrksrc, $docfile );
@@ -668,11 +665,13 @@ sub _append_config_files_to_readme_slackware {
 
     my $readme
         = "\n"
-        . "This package provides the following configuration files:\n" . "\n"
+        . "Configuration files\n"
+        . "-------------------\n\n"
+        . "This package provides the following configuration files:\n\n"
         . join( "\n", map {"* /$_"} @conffiles ) . "\n";
 
     my $docdir = File::Spec->catdir( $pkgdesc->destdir, $pkgdesc->docdir );
-    my $readmefile = File::Spec->catfile( $docdir, $README_SLACKWARE );
+    my $readmefile = File::Spec->catfile( $docdir, 'README.SLACKWARE' );
     return $dist->_write_file( $readmefile, { append => 1 }, $readme );
 }
 
@@ -714,13 +713,25 @@ sub _write_file {
     my ( $dist, $filename, @lines ) = @_;
 
     my $param_ref = ( ref $lines[0] eq 'HASH' ) ? shift @lines : {};
-    my $mode = ( $param_ref->{append} ) ? '>>' : '>';
+    my $mode      = ( $param_ref->{append} )    ? '>>'         : '>';
+    my $binmode   = $param_ref->{binmode};
 
     my $fh;
     if ( !open $fh, $mode, $filename ) {
         error(
             loc( q{Could not create file '%1': %2}, $filename, $OS_ERROR ) );
         return;
+    }
+
+    if ($binmode) {
+        if ( !binmode $fh, $binmode ) {
+            error(
+                loc(q{Could not set binmode for file '%1' to '%2': %3},
+                    $filename, $binmode, $OS_ERROR
+                )
+            );
+            return;
+        }
     }
 
     my $fail = 0;
@@ -942,7 +953,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.04.
+This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.05.
 
 =head1 SYNOPSIS
 
@@ -952,6 +963,7 @@ This documentation refers to C<CPANPLUS::Dist::Slackware> version 0.04.
 
     ### using the command-line tool
     $ cpan2dist --format CPANPLUS::Dist::Slackware Some::Module
+    $ sudo /sbin/installpkg /tmp/perl-Some-Module-1.0-i486-1_CPANPLUS.tgz
 
 =head1 DESCRIPTION
 
@@ -991,8 +1003,8 @@ User settings are stored in F<$HOME/.cpanplus/lib/CPANPLUS/Config/User.pm>.
 
 Packages may also be created from the command-line.  Example:
 
-    $ cpan2dist --format CPANPLUS::Dist::Slackware Mojolicious
-    $ sudo /sbin/installpkg /tmp/perl-Mojolicious-2.43-i486-1_CPANPLUS.tgz
+    $ cpan2dist --format CPANPLUS::Dist::Slackware Smart::Comments
+    $ sudo /sbin/installpkg /tmp/perl-Smart-Comments-1.0.4-i486-1_CPANPLUS.tgz
 
 =head2 Managing packages as a non-root user
 
@@ -1090,14 +1102,48 @@ Returns true on success and false on failure.
 
 =back
 
+=head1 PLUGINS
+
+You can write plugins to patch or customize Perl distributions.  Put your
+plugins into the C<CPANPLUS::Dist::Slackware::Plugin> namespace.  Plugins can
+provide the following methods.
+
+=over 4
+
+=item B<< $plugin->available($dist) >>
+
+This method, which must exist, returns true if the plugin applies to the given
+distribution.
+
+=item B<< $plugin->pre_prepare($dist) >>
+
+Use this method to patch a distribution or to set environment variables that
+help to configure the distribution.  Called before the Perl distribution is
+prepared, i.e. before the command C<perl Makefile.PL> or C<perl Build.PL> is
+run.  Returns true on success.
+
+=item B<< $plugin->post_prepare($dist) >>
+
+Use this method to, for example, unset previously set environment variables.
+Called after the Perl distribution has been prepared.  Returns true on
+success.
+
+=item B<< $plugin->pre_package($dist) >>
+
+This method is called after the Perl distribution has been installed in the
+temporary staging directory and before a Slackware compatible package is
+created.  Use this method to install additional files like init scripts or to
+append text to the F<README.SLACKWARE> file.  Returns true on success.
+
+=back
+
 =head1 DIAGNOSTICS
 
 =over 4
 
 =item B<< In order to manage packages as a non-root user... >>
 
-You are using CPANPLUS as a non-root user but C<sudo> is either not installed
-or not configured.
+You are using CPANPLUS as a non-root user but C<sudo> is not installed.
 
 =item B<< You do not have '/sbin/makepkg'... >>
 
@@ -1198,7 +1244,7 @@ recursively.
 
 Requires the Slackware Linux package management tools C<makepkg>,
 C<installpkg>, C<updatepkg>, and C<removepkg>.  Other required commands are
-C<file>, C<gcc>, C<make>, and C<strip>.
+C<chown>, C<file>, C<gcc>, C<make>, and C<strip>.
 
 In order to manage packages as a non-root user, which is highly recommended,
 you must have C<sudo> and, optionally, C<fakeroot>.  You can download a script

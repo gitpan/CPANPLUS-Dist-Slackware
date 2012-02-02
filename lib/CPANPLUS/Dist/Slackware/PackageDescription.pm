@@ -13,7 +13,7 @@ use Pod::Simple::PullParser qw();
 use POSIX qw();
 use Text::Wrap qw($columns);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub new {
     my ( $class, %attrs ) = @_;
@@ -27,7 +27,17 @@ sub module {
 
 sub name {
     my $self = shift;
-    return $self->{name} || 'perl-' . $self->module->package_name;
+    my $name = $self->{name};
+    if ( !$name ) {
+        $name = $self->module->package_name;
+
+        # Prepend "perl-" unless the name starts with "perl-".
+        if ( $name !~ /^perl-/ ) {
+            $name = 'perl-' . $name;
+        }
+        $self->{name} = $name;
+    }
+    return $name;
 }
 
 sub version {
@@ -205,7 +215,7 @@ sub summary {
         || $module->description
         || $self->_summary_from_pod
         || q{};
-    $summary =~ s/\v+/ /g;    # Replace vertical whitespace.
+    $summary =~ s/[\r\n]+/ /g;    # Replace vertical whitespace.
     return $summary;
 }
 
@@ -233,6 +243,11 @@ config() {
         if [ "$NEWCKSUM" = "$OLDCKSUM" ]; then
             # toss the redundant copy
             rm "$NEW"
+        else
+            # preserve perms
+            cp -p "$OLD" "${NEW}.incoming"
+            cat "$NEW" > "${NEW}.incoming"
+            mv "${NEW}.incoming" "$NEW"
         fi
     elif [ -h "$NEW" -a -h "$OLD" ]; then
         NEWLINK=$(readlink -n "$NEW")
@@ -370,13 +385,14 @@ sub readme_slackware {
 
     my $text = 'This package was created by CPANPLUS::Dist::Slackware'
         . " from the Perl distribution '$srcname' version $version.";
-    if (@prereqs) {
-        $text .= '  It requires the following Perl modules:';
-    }
     $readme .= Text::Wrap::wrap( q{}, q{}, $text ) . "\n";
 
     if (@prereqs) {
-        $readme .= "\n";
+        $readme
+            .= "\n"
+            . "Required modules\n"
+            . "----------------\n\n"
+            . "The following Perl modules are required:\n\n";
         for my $prereq (@prereqs) {
             my $prereq_srcname = $prereq->{srcname};
             my $prereq_version = $prereq->{version};
@@ -424,7 +440,7 @@ Slackware compatible package
 =head1 VERSION
 
 This documentation refers to C<CPANPLUS::Dist::Slackware::PackageDescription>
-version 0.04.
+version 0.05.
 
 =head1 SYNOPSIS
 

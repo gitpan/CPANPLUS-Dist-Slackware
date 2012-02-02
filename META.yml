@@ -3,9 +3,10 @@ abstract: 'Install Perl distributions on Slackware Linux'
 author:
   - 'Andreas Voegele <andreas@andreasvoegele.com>'
 build_requires:
+  Module::Build: 0.2808
   Test::More: 0
 configure_requires:
-  Module::Build: 0.38
+  Module::Build: 0.2808
 dynamic_config: 1
 generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.113640'
 license: perl
@@ -16,13 +17,19 @@ name: CPANPLUS-Dist-Slackware
 provides:
   CPANPLUS::Dist::Slackware:
     file: lib/CPANPLUS/Dist/Slackware.pm
-    version: 0.04
+    version: 0.05
   CPANPLUS::Dist::Slackware::PackageDescription:
     file: lib/CPANPLUS/Dist/Slackware/PackageDescription.pm
-    version: 0.04
+    version: 0.05
   CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/Alien/wxWidgets.pm
     version: 0.02
+  CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin:
+    file: lib/CPANPLUS/Dist/Slackware/Plugin/Mail/SpamAssassin.pm
+    version: 0.01
+  CPANPLUS::Dist::Slackware::Plugin::Padre:
+    file: lib/CPANPLUS/Dist/Slackware/Plugin/Padre.pm
+    version: 0.01
   CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/YAML/LibYAML.pm
     version: 0.02
@@ -46,4 +53,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/voegelas/CPANPLUS-Dist-Slackware.git
-version: 0.04
+version: 0.05

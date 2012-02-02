@@ -19,9 +19,7 @@ sub pre_prepare {
     my $cb     = $module->parent;
 
     my $wrksrc = $module->status->extract;
-    if ( !$wrksrc ) {
-        return;
-    }
+    return if !$wrksrc;
 
     my $filename = File::Spec->catfile( $wrksrc, 'LibYAML', 'LibYAML.c' );
     if ( -f $filename ) {
@@ -37,6 +35,7 @@ __END__
 =head1 NAME
 
 CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML - Remove F<LibYAML/LibYAML.c>
+if necessary
 
 =head1 VERSION
 

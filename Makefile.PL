@@ -14,6 +14,7 @@ WriteMakefile
                    'IO::Compress::Gzip' => 0,
                    'IPC::Cmd' => 0,
                    'Locale::Maketext::Simple' => 0,
+                   'Module::Build' => '0.2808',
                    'Module::CoreList' => 0,
                    'Module::Pluggable' => 0,
                    'POSIX' => 0,
