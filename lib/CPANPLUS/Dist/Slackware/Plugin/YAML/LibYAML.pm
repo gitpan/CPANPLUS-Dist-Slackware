@@ -5,7 +5,7 @@ use warnings;
 
 use File::Spec qw();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub available {
     my ( $plugin, $dist ) = @_;
@@ -21,9 +21,21 @@ sub pre_prepare {
     my $wrksrc = $module->status->extract;
     return if !$wrksrc;
 
+    # See L<https://rt.cpan.org/Ticket/Display.html?id=74238>.
     my $filename = File::Spec->catfile( $wrksrc, 'LibYAML', 'LibYAML.c' );
     if ( -f $filename ) {
         $dist->_unlink($filename) or return;
+    }
+
+    # See L<https://rt.cpan.org/Ticket/Display.html?id=46507>.
+    $filename = File::Spec->catfile( $wrksrc, 'LibYAML', 'perl_libyaml.c' );
+    if ( -f $filename ) {
+        my $code = $dist->_read_file($filename);
+        if ( $code =~ /croak\(\s*loader_error_msg/xms ) {
+            $code =~ s/croak\((\s*loader_error_msg)/croak("%s",$1/gxms;
+            $cb->_move( file => $filename, to => "$filename.orig" ) or return;
+            $dist->_write_file( $filename, $code ) or return;
+        }
     }
 
     return 1;
@@ -34,13 +46,13 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML - Remove F<LibYAML/LibYAML.c>
-if necessary
+CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML - Patch C<YAML::LibYAML> if
+necessary
 
 =head1 VERSION
 
 This documentation refers to
-C<CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML> version 0.02.
+C<CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML> version 0.03.
 
 =head1 SYNOPSIS
 
@@ -49,9 +61,11 @@ C<CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML> version 0.02.
 
 =head1 DESCRIPTION
 
-If YAML::LibYAML is built a second time, the build fails since
+If YAML::LibYAML is built a second time the build fails since
 F<LibYAML/Makefile.PL> adds F<LibYAML.o> twice to the list of object files.
-Reported as bug #74238 at L<http://rt.cpan.org/>.
+Reported as bug #74238 at L<http://rt.cpan.org/>.  Compiling
+F<LibYAML/perl_libyaml.c> with C<-Werror=format-security> fails.  Reported as
+bug #46507.
 
 =head1 SUBROUTINES/METHODS
 
@@ -63,7 +77,7 @@ Returns true if this plugin applies to the given Perl distribution.
 
 =item B<< $plugin->pre_prepare($dist) >>
 
-Remove F<LibYAML/LibYAML.c> if necessary.
+Remove F<LibYAML/LibYAML.c> and patch F<LibYAML/perl_libyaml.c>.
 
 =back
 

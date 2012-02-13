@@ -22,7 +22,8 @@ WriteMakefile
                    'Pod::Find' => 0,
                    'Pod::Simple' => 0,
                    'Test::More' => 0,
-                   'Text::Wrap' => 0
+                   'Text::Wrap' => 0,
+                   'version' => '0.77'
                  },
   'INSTALLDIRS' => 'site',
   'EXE_FILES' => [],

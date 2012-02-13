@@ -4,7 +4,7 @@
       "Andreas Voegele <andreas@andreasvoegele.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.113640",
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.120351",
    "license" : [
       "perl_5"
    ],
@@ -17,7 +17,7 @@
       "build" : {
          "requires" : {
             "Module::Build" : "0.2808",
-            "Test::More" : 0
+            "Test::More" : "0"
          }
       },
       "configure" : {
@@ -27,49 +27,62 @@
       },
       "runtime" : {
          "requires" : {
-            "CPANPLUS" : 0,
-            "Cwd" : 0,
-            "File::Find" : 0,
-            "File::Spec" : 0,
-            "File::Temp" : 0,
-            "IO::Compress::Gzip" : 0,
-            "IPC::Cmd" : 0,
-            "Locale::Maketext::Simple" : 0,
-            "Module::CoreList" : 0,
-            "Module::Pluggable" : 0,
-            "POSIX" : 0,
-            "Params::Check" : 0,
-            "Pod::Find" : 0,
-            "Pod::Simple" : 0,
-            "Text::Wrap" : 0,
-            "perl" : "5.01"
+            "CPANPLUS" : "0",
+            "Cwd" : "0",
+            "File::Find" : "0",
+            "File::Spec" : "0",
+            "File::Temp" : "0",
+            "IO::Compress::Gzip" : "0",
+            "IPC::Cmd" : "0",
+            "Locale::Maketext::Simple" : "0",
+            "Module::CoreList" : "0",
+            "Module::Pluggable" : "0",
+            "POSIX" : "0",
+            "Params::Check" : "0",
+            "Pod::Find" : "0",
+            "Pod::Simple" : "0",
+            "Text::Wrap" : "0",
+            "perl" : "5.01",
+            "version" : "0.77"
          }
       }
    },
    "provides" : {
       "CPANPLUS::Dist::Slackware" : {
          "file" : "lib/CPANPLUS/Dist/Slackware.pm",
-         "version" : "0.05"
+         "version" : "1.00"
       },
       "CPANPLUS::Dist::Slackware::PackageDescription" : {
          "file" : "lib/CPANPLUS/Dist/Slackware/PackageDescription.pm",
-         "version" : "0.05"
+         "version" : "1.00"
       },
       "CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets" : {
          "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/Alien/wxWidgets.pm",
          "version" : "0.02"
       },
+      "CPANPLUS::Dist::Slackware::Plugin::Convert::BinHex" : {
+         "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/Convert/BinHex.pm",
+         "version" : "0.01"
+      },
       "CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin" : {
          "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/Mail/SpamAssassin.pm",
          "version" : "0.01"
       },
+      "CPANPLUS::Dist::Slackware::Plugin::Net::Pcap" : {
+         "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/Net/Pcap.pm",
+         "version" : "0.01"
+      },
       "CPANPLUS::Dist::Slackware::Plugin::Padre" : {
          "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/Padre.pm",
-         "version" : "0.01"
+         "version" : "0.02"
       },
       "CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML" : {
          "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/YAML/LibYAML.pm",
-         "version" : "0.02"
+         "version" : "0.03"
+      },
+      "CPANPLUS::Dist::Slackware::Plugin::YAML::Syck" : {
+         "file" : "lib/CPANPLUS/Dist/Slackware/Plugin/YAML/Syck.pm",
+         "version" : "0.01"
       }
    },
    "release_status" : "stable",
@@ -81,5 +94,5 @@
          "url" : "git://github.com/voegelas/CPANPLUS-Dist-Slackware.git"
       }
    },
-   "version" : "0.05"
+   "version" : "1.00"
 }

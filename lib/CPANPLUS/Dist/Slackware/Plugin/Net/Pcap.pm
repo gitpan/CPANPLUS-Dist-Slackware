@@ -1,24 +1,37 @@
-package CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets;
+package CPANPLUS::Dist::Slackware::Plugin::Net::Pcap;
 
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+use File::Spec qw();
+
+our $VERSION = '0.01';
 
 sub available {
     my ( $plugin, $dist ) = @_;
-    return ( $dist->parent->package_name eq 'Alien-wxWidgets' );
+    return ( $dist->parent->package_name eq 'Net-Pcap' );
 }
 
 sub pre_prepare {
     my ( $plugin, $dist ) = @_;
-    $ENV{AWX_URL} = 'http://prdownloads.sourceforge.net/wxwindows';
-    return 1;
-}
 
-sub post_prepare {
-    my ( $plugin, $dist ) = @_;
-    delete $ENV{AWX_URL};
+    my $module = $dist->parent;
+    my $cb     = $module->parent;
+
+    my $wrksrc = $module->status->extract;
+    return if !$wrksrc;
+
+    # See L<https://rt.cpan.org/Ticket/Display.html?id=73335>.
+    my $filename = File::Spec->catfile( $wrksrc, 'Makefile.PL' );
+    if ( -f $filename ) {
+        my $code = $dist->_read_file($filename);
+        if ( $code =~ /\$options{CCFLAGS}/xms ) {
+            $code =~ s/^(\s+\$options{CCFLAGS})/#$1/xms;
+            $cb->_move( file => $filename, to => "$filename.orig" ) or return;
+            $dist->_write_file( $filename, $code ) or return;
+        }
+    }
+
     return 1;
 }
 
@@ -27,24 +40,22 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets - Configure
-Alien::wxWidgets
+CPANPLUS::Dist::Slackware::Plugin::Net::Pcap - Patch C<Net::Pcap> if
+necessary
 
 =head1 VERSION
 
 This documentation refers to
-C<CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets> version 0.02.
+C<CPANPLUS::Dist::Slackware::Plugin::Net::Pcap> version 0.01.
 
 =head1 SYNOPSIS
 
     $is_available = $plugin->available($dist);
     $success = $plugin->pre_prepare($dist);
-    $success = $plugin->post_prepare($dist);
 
 =head1 DESCRIPTION
 
-Make sure that Alien::wxWidgets does not check for wxWidgets installations
-that were compiled using Alien::wxWidgets.
+Fix the libpcap detection.  Reported as bug #73335 at L<http://rt.cpan.org/>.
 
 =head1 SUBROUTINES/METHODS
 
@@ -56,12 +67,7 @@ Returns true if this plugin applies to the given Perl distribution.
 
 =item B<< $plugin->pre_prepare($dist) >>
 
-Sets C<$ENV{AWX_URL}>, which causes Alien::wxWidgets to ignore wxWidgets
-installations that were compiled using Alien::wxWidgets.
-
-=item B<< $plugin->post_prepare($dist) >>
-
-Unsets C<$ENV{AWX_URL}>.
+Patch F<Makefile.PL> if necessary.
 
 =back
 
@@ -75,7 +81,7 @@ None.
 
 =head1 DEPENDENCIES
 
-None.
+Requires the module C<File::Spec>.
 
 =head1 INCOMPATIBILITIES
 
