@@ -21,7 +21,7 @@ use Params::Check qw();
 
 local $Params::Check::VERBOSE = 1;
 
-our $VERSION = '1.00';
+our $VERSION = '1.010';
 
 my $NONROOT_WARNING = <<'END_NONROOT_WARNING';
 In order to manage packages as a non-root user, which is highly recommended,
@@ -652,7 +652,7 @@ sub _write_config_files {
 
     my $installdir = File::Spec->catdir( $pkgdesc->destdir, 'install' );
     my $doinstfile = File::Spec->catfile( $installdir, 'doinst.sh' );
-    return $dist->_write_file( $doinstfile, $script );
+    return $dist->_write_file( $doinstfile, { append => 1 }, $script );
 }
 
 sub _append_config_files_to_readme_slackware {
@@ -951,7 +951,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-This documentation refers to C<CPANPLUS::Dist::Slackware> version 1.00.
+This documentation refers to C<CPANPLUS::Dist::Slackware> version 1.010.
 
 =head1 SYNOPSIS
 
@@ -1264,7 +1264,7 @@ C<CPANPLUS::Dist::Build>, C<CPANPLUS::Dist::Base>
 
 =head1 AUTHOR
 
-Andreas Voegele, C<< <andreas at andreasvoegele.com> >>
+Andreas Voegele  C<< <VOEGELAS@cpan.org> >>
 
 =head1 BUGS AND LIMITATIONS
 
