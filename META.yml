@@ -1,14 +1,14 @@
 ---
 abstract: 'Install Perl distributions on Slackware Linux'
 author:
-  - 'Andreas Voegele <VOEGELAS@cpan.org>'
+  - 'Andreas Voegele <voegelas@cpan.org>'
 build_requires:
   Module::Build: 0.2808
   Test::More: 0
 configure_requires:
   Module::Build: 0.2808
 dynamic_config: 1
-generated_by: 'Module::Build version 0.3901, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.4005, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -17,28 +17,28 @@ name: CPANPLUS-Dist-Slackware
 provides:
   CPANPLUS::Dist::Slackware:
     file: lib/CPANPLUS/Dist/Slackware.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::PackageDescription:
     file: lib/CPANPLUS/Dist/Slackware/PackageDescription.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/Alien/wxWidgets.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::Plugin::Convert::BinHex:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/Convert/BinHex.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/Mail/SpamAssassin.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::Plugin::Net::Pcap:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/Net/Pcap.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::Plugin::Padre:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/Padre.pm
-    version: 1.010
+    version: 1.011
   CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML:
     file: lib/CPANPLUS/Dist/Slackware/Plugin/YAML/LibYAML.pm
-    version: 1.010
+    version: 1.011
 requires:
   CPANPLUS: 0
   Cwd: 0
@@ -60,4 +60,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/voegelas/CPANPLUS-Dist-Slackware.git
-version: 1.010
+version: 1.011
