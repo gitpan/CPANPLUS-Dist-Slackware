@@ -1,4 +1,7 @@
 package CPANPLUS::Dist::Slackware;
+{
+  $CPANPLUS::Dist::Slackware::VERSION = '1.012';
+}
 
 use strict;
 use warnings;
@@ -20,8 +23,6 @@ use Module::Pluggable require => 1;
 use Params::Check qw();
 
 local $Params::Check::VERBOSE = 1;
-
-our $VERSION = '1.011';
 
 my $NONROOT_WARNING = <<'END_NONROOT_WARNING';
 In order to manage packages as a non-root user, which is highly recommended,
@@ -258,12 +259,8 @@ sub _fake_install {
         my $perl     = $param_ref->{perl};
         my @run_perl = $dist->_run_perl;
         $cmd = [
-            $perl,           @run_perl,
-            'Build',         'install',
-            '--destdir',     $destdir,
-            '--installdirs', 'vendor',
-            '--config',      'installvendorman1dir=/usr/man/man1',
-            '--config',      'installvendorman3dir=/usr/man/man3'
+            $perl, @run_perl, 'Build', 'install', '--destdir', $destdir,
+            split( ' ', $dist->_perl_mb_opt )
         ];
     }
     else {
@@ -958,7 +955,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-This documentation refers to C<CPANPLUS::Dist::Slackware> version 1.011.
+version 1.012
 
 =head1 SYNOPSIS
 
@@ -977,7 +974,7 @@ format?
 
 This CPANPLUS plugin creates Slackware compatible packages from Perl
 distributions.  You can either install the created packages using the API
-provided by CPANPLUS, or manually via C<installpkg>.
+provided by CPANPLUS or manually via C<installpkg>.
 
 =head2 Using C<CPANPLUS::Dist::Slackware>
 
@@ -1026,10 +1023,10 @@ build dependencies is supplied.
 =head2 Configuration files
 
 Few Perl distributions provide configuration files in F</etc> but if such a
-distribution is updated you have to check for new configuration files.  The
-package's F<README.SLACKWARE> file lists the configuration files.  Updated
-configuration files have got the filename extension ".new" and must be merged
-by the system administrator.
+distribution, e.g. C<Mail::SpamAssassin>, is updated you have to check for new
+configuration files.  The package's F<README.SLACKWARE> file lists the
+configuration files.  Updated configuration files have got the filename
+extension ".new" and must be merged by the system administrator.
 
 =head1 SUBROUTINES/METHODS
 
@@ -1288,7 +1285,7 @@ through the web interface at L<http://rt.cpan.org/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2012, 2013 Andreas Voegele
+Copyright 2012, 2013 Andreas Voegele
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

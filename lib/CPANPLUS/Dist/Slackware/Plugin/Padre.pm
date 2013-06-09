@@ -1,12 +1,13 @@
 package CPANPLUS::Dist::Slackware::Plugin::Padre;
+{
+  $CPANPLUS::Dist::Slackware::Plugin::Padre::VERSION = '1.012';
+}
 
 use utf8;
 use strict;
 use warnings;
 
 use File::Spec qw();
-
-our $VERSION = '1.011';
 
 sub available {
     my ( $plugin, $dist ) = @_;
@@ -197,8 +198,7 @@ CPANPLUS::Dist::Slackware::Plugin::Padre - Install a desktop entry and an icon
 
 =head1 VERSION
 
-This documentation refers to
-C<CPANPLUS::Dist::Slackware::Plugin::Padre> version 1.011.
+version 1.012
 
 =head1 SYNOPSIS
 
@@ -255,7 +255,7 @@ through the web interface at L<http://rt.cpan.org/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2012, 2013 Andreas Voegele
+Copyright 2012, 2013 Andreas Voegele
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

@@ -1,4 +1,7 @@
 package CPANPLUS::Dist::Slackware::PackageDescription;
+{
+  $CPANPLUS::Dist::Slackware::PackageDescription::VERSION = '1.012';
+}
 
 use strict;
 use warnings;
@@ -13,8 +16,6 @@ use Pod::Simple::PullParser qw();
 use POSIX qw();
 use Text::Wrap qw($columns);
 use version 0.77 qw();
-
-our $VERSION = '1.011';
 
 sub new {
     my ( $class, %attrs ) = @_;
@@ -471,13 +472,11 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::PackageDescription - Collect information on a
-package
+CPANPLUS::Dist::Slackware::PackageDescription - Collect information on a package
 
 =head1 VERSION
 
-This documentation refers to C<CPANPLUS::Dist::Slackware::PackageDescription>
-version 1.011.
+version 1.012
 
 =head1 SYNOPSIS
 
@@ -663,7 +662,7 @@ through the web interface at L<http://rt.cpan.org/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2012, 2013 Andreas Voegele
+Copyright 2012, 2013 Andreas Voegele
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

@@ -1,57 +1,65 @@
-use 5.010;
+
 use strict;
 use warnings;
-use Module::Build;
 
-my $class = Module::Build->subclass(
-    class => "Module::Build::Custom",
-    code => <<'SUBCLASS' );
+use Module::Build 0.2808;
 
-sub ACTION_critique {
-    my $self = shift;
-    $self->depends_on("test");
-    $self->do_system(qw(perlcritic lib/));
-}
-SUBCLASS
 
-my $builder = $class->new(
-    module_name         => 'CPANPLUS::Dist::Slackware',
-    license             => 'perl',
-    dist_author         => q{Andreas Voegele <voegelas@cpan.org>},
-    dist_version_from   => 'lib/CPANPLUS/Dist/Slackware.pm',
-    build_requires => {
-        'Module::Build' => 0.2808,
-        'Test::More' => 0,
-    },
-    configure_requires => {
-        'Module::Build' => 0.2808,
-    },
-    requires => {
-        'perl' => 5.010,
-        'CPANPLUS' => 0,
-        'Cwd' => 0,
-        'File::Find' => 0,
-        'File::Spec' => 0,
-        'File::Temp' => 0,
-        'IO::Compress::Gzip' => 0,
-        'IPC::Cmd' => 0,
-        'Locale::Maketext::Simple' => 0,
-        'Module::CoreList' => 0,
-        'Module::Pluggable' => 0,
-        'Params::Check' => 0,
-        'Pod::Find' => 0,
-        'Pod::Simple' => 0,
-        'POSIX' => 0,
-        'Text::Wrap' => 0,
-        'version' => 0.77,
-    },
-    add_to_cleanup      => [ 'CPANPLUS-Dist-Slackware-*' ],
-    create_makefile_pl => 'traditional',
-    meta_merge     => {
-        resources => {
-            repository => 'git://github.com/voegelas/CPANPLUS-Dist-Slackware.git'
-        },
-    },
+my %module_build_args = (
+  "build_requires" => {
+    "Module::Build" => "0.2808"
+  },
+  "configure_requires" => {
+    "ExtUtils::MakeMaker" => "6.30",
+    "Module::Build" => "0.2808"
+  },
+  "dist_abstract" => "Install Perl distributions on Slackware Linux",
+  "dist_author" => [
+    "Andreas Voegele <voegelas\@cpan.org>"
+  ],
+  "dist_name" => "CPANPLUS-Dist-Slackware",
+  "dist_version" => "1.012",
+  "license" => "perl",
+  "module_name" => "CPANPLUS::Dist::Slackware",
+  "recommends" => {},
+  "recursive_test_files" => 1,
+  "requires" => {
+    "CPANPLUS" => 0,
+    "Cwd" => 0,
+    "File::Find" => 0,
+    "File::Spec" => 0,
+    "File::Temp" => 0,
+    "IO::Compress::Gzip" => 0,
+    "IPC::Cmd" => 0,
+    "Locale::Maketext::Simple" => 0,
+    "Module::CoreList" => 0,
+    "Module::Pluggable" => 0,
+    "POSIX" => 0,
+    "Params::Check" => 0,
+    "Pod::Find" => 0,
+    "Pod::Simple" => 0,
+    "Text::Wrap" => 0,
+    "perl" => "5.010",
+    "version" => "0.77"
+  },
+  "script_files" => [],
+  "test_requires" => {}
 );
 
-$builder->create_build_script();
+
+unless ( eval { Module::Build->VERSION(0.4004) } ) {
+  my $tr = delete $module_build_args{test_requires};
+  my $br = $module_build_args{build_requires};
+  for my $mod ( keys %$tr ) {
+    if ( exists $br->{$mod} ) {
+      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
+    }
+    else {
+      $br->{$mod} = $tr->{$mod};
+    }
+  }
+}
+
+my $build = Module::Build->new(%module_build_args);
+
+$build->create_build_script;
