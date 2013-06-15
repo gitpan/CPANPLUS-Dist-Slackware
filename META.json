@@ -14,15 +14,9 @@
    },
    "name" : "CPANPLUS-Dist-Slackware",
    "prereqs" : {
-      "build" : {
-         "requires" : {
-            "Module::Build" : "0.2808"
-         }
-      },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.30",
-            "Module::Build" : "0.2808"
+            "ExtUtils::MakeMaker" : "6.30"
          }
       },
       "develop" : {
@@ -61,6 +55,6 @@
          "url" : "git://github.com/voegelas/CPANPLUS-Dist-Slackware.git"
       }
    },
-   "version" : "1.012"
+   "version" : "1.013"
 }
 

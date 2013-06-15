@@ -11,12 +11,9 @@ use ExtUtils::MakeMaker 6.30;
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Install Perl distributions on Slackware Linux",
   "AUTHOR" => "Andreas Voegele <voegelas\@cpan.org>",
-  "BUILD_REQUIRES" => {
-    "Module::Build" => "0.2808"
-  },
+  "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.30",
-    "Module::Build" => "0.2808"
+    "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "CPANPLUS-Dist-Slackware",
   "EXE_FILES" => [],
@@ -41,7 +38,7 @@ my %WriteMakefileArgs = (
     "version" => "0.77"
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "1.012",
+  "VERSION" => "1.013",
   "test" => {
     "TESTS" => "t/*.t"
   }

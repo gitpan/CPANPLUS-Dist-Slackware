@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin::VERSION = '1.012';
+  $CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin::VERSION = '1.013';
 }
 
 use strict;
@@ -198,7 +198,7 @@ CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin - Add an init script and d
 
 =head1 VERSION
 
-version 1.012
+version 1.013
 
 =head1 SYNOPSIS
 

@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::Padre;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::Padre::VERSION = '1.012';
+  $CPANPLUS::Dist::Slackware::Plugin::Padre::VERSION = '1.013';
 }
 
 use utf8;
@@ -198,7 +198,7 @@ CPANPLUS::Dist::Slackware::Plugin::Padre - Install a desktop entry and an icon
 
 =head1 VERSION
 
-version 1.012
+version 1.013
 
 =head1 SYNOPSIS
 
