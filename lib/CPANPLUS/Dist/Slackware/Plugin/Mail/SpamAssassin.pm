@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin::VERSION = '1.013';
+  $CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin::VERSION = '1.014';
 }
 
 use strict;
@@ -124,6 +124,7 @@ utilize.  Among the optional packages are:
 * perl-IP-Country
 * perl-Mail-SPF
 * perl-ldap
+* perl-libwww
 
 Downloading the SpamAssassin ruleset
 ------------------------------------
@@ -198,7 +199,7 @@ CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin - Add an init script and d
 
 =head1 VERSION
 
-version 1.013
+version 1.014
 
 =head1 SYNOPSIS
 

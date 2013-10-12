@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware;
 {
-  $CPANPLUS::Dist::Slackware::VERSION = '1.013';
+  $CPANPLUS::Dist::Slackware::VERSION = '1.014';
 }
 
 use strict;
@@ -955,7 +955,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-version 1.013
+version 1.014
 
 =head1 SYNOPSIS
 
@@ -1232,7 +1232,7 @@ output of C<uname -m> on all other platforms.
 The build number that is added to the filename.  Defaults to "1".
 
 As packages may be built recursively, setting this variable is mainly useful
-when rebuilding all packages after upgrading Perl.
+when all packages are rebuilt, e.g. after Perl has been upgraded.
 
 =item B<TAG>
 

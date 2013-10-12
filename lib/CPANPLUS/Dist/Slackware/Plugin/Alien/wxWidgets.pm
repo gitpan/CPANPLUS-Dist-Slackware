@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets::VERSION = '1.013';
+  $CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets::VERSION = '1.014';
 }
 
 use strict;
@@ -32,7 +32,7 @@ CPANPLUS::Dist::Slackware::Plugin::Alien::wxWidgets - Configure Alien::wxWidgets
 
 =head1 VERSION
 
-version 1.013
+version 1.014
 
 =head1 SYNOPSIS
 

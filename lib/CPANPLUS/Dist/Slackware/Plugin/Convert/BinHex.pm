@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::Convert::BinHex;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::Convert::BinHex::VERSION = '1.013';
+  $CPANPLUS::Dist::Slackware::Plugin::Convert::BinHex::VERSION = '1.014';
 }
 
 use strict;
@@ -45,7 +45,7 @@ CPANPLUS::Dist::Slackware::Plugin::Convert::BinHex - Patch C<Convert::BinHex> if
 
 =head1 VERSION
 
-version 1.013
+version 1.014
 
 =head1 SYNOPSIS
 
