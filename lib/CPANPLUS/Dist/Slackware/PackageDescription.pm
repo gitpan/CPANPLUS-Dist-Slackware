@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::PackageDescription;
 {
-  $CPANPLUS::Dist::Slackware::PackageDescription::VERSION = '1.014';
+  $CPANPLUS::Dist::Slackware::PackageDescription::VERSION = '1.015';
 }
 
 use strict;
@@ -484,7 +484,7 @@ CPANPLUS::Dist::Slackware::PackageDescription - Collect information on a package
 
 =head1 VERSION
 
-version 1.014
+version 1.015
 
 =head1 SYNOPSIS
 
