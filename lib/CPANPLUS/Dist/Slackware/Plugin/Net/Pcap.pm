@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::Net::Pcap;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::Net::Pcap::VERSION = '1.015';
+  $CPANPLUS::Dist::Slackware::Plugin::Net::Pcap::VERSION = '1.016';
 }
 
 use strict;
@@ -48,7 +48,7 @@ CPANPLUS::Dist::Slackware::Plugin::Net::Pcap - Patch C<Net::Pcap> if necessary
 
 =head1 VERSION
 
-version 1.015
+version 1.016
 
 =head1 SYNOPSIS
 

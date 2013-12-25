@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::PackageDescription;
 {
-  $CPANPLUS::Dist::Slackware::PackageDescription::VERSION = '1.015';
+  $CPANPLUS::Dist::Slackware::PackageDescription::VERSION = '1.016';
 }
 
 use strict;
@@ -160,7 +160,7 @@ sub docfiles {
         m{ ^(?:
                 AUTHORS
                 | BUGS
-                | Change(?:s|Log)
+                | Change(?:s|Log)(?:\.md)?
                 | COPYING(?:\.(?:LESSER|LIB))?
                 | CREDITS
                 | FAQ
@@ -484,7 +484,7 @@ CPANPLUS::Dist::Slackware::PackageDescription - Collect information on a package
 
 =head1 VERSION
 
-version 1.015
+version 1.016
 
 =head1 SYNOPSIS
 

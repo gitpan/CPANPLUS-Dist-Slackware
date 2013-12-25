@@ -1,6 +1,6 @@
 package CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML;
 {
-  $CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML::VERSION = '1.015';
+  $CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML::VERSION = '1.016';
 }
 
 use strict;
@@ -51,7 +51,7 @@ CPANPLUS::Dist::Slackware::Plugin::YAML::LibYAML - Patch C<YAML::LibYAML> if nec
 
 =head1 VERSION
 
-version 1.015
+version 1.016
 
 =head1 SYNOPSIS
 
