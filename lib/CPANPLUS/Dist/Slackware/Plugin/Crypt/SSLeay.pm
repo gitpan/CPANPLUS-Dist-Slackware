@@ -1,5 +1,5 @@
-package CPANPLUS::Dist::Slackware::Plugin::Net::Pcap;
-$CPANPLUS::Dist::Slackware::Plugin::Net::Pcap::VERSION = '1.017';
+package CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay;
+$CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay::VERSION = '1.017';
 use strict;
 use warnings;
 
@@ -7,7 +7,7 @@ use File::Spec qw();
 
 sub available {
     my ( $plugin, $dist ) = @_;
-    return ( $dist->parent->package_name eq 'Net-Pcap' );
+    return ( $dist->parent->package_name eq 'Crypt-SSLeay' );
 }
 
 sub pre_prepare {
@@ -19,15 +19,12 @@ sub pre_prepare {
     my $wrksrc = $module->status->extract;
     return if !$wrksrc;
 
-    # See L<https://rt.cpan.org/Ticket/Display.html?id=73335>.
-    my $offending_code = qr/
-        \$options{CCFLAGS} \s* = \s* ["']-Wall \s+ -Wwrite-strings["'] .*?;
-    /xms;
+    # See L<https://rt.cpan.org/Ticket/Display.html?id=98108>.
     my $filename = File::Spec->catfile( $wrksrc, 'Makefile.PL' );
     if ( -f $filename ) {
         my $code = $dist->_read_file($filename);
-        if ( $code =~ $offending_code ) {
-            $code =~ s/$offending_code//;
+        if ( $code =~ /^caller\s+or/xms ) {
+            $code =~ s/^caller(\s+or)/undef$1/xms;
             $cb->_move( file => $filename, to => "$filename.orig" ) or return;
             $dist->_write_file( $filename, $code ) or return;
         }
@@ -41,7 +38,7 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::Plugin::Net::Pcap - Patch C<Net::Pcap> if necessary
+CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay - Patch C<Crypt::SSLeay> if necessary
 
 =head1 VERSION
 
@@ -54,7 +51,10 @@ version 1.017
 
 =head1 DESCRIPTION
 
-Fix the libpcap detection.  Reported as bug #73335 at L<http://rt.cpan.org/>.
+C<CPANPLUS> executes F<Makefile.PL> with C<do> but the F<Makefile.PL> of
+C<Crypt::SSLeay> exits without creating a F<Makefile> if the script is run in
+the context of another call.  Reported as bug #98108 at
+L<http://rt.cpan.org/>.
 
 =head1 SUBROUTINES/METHODS
 
@@ -66,7 +66,7 @@ Returns true if this plugin applies to the given Perl distribution.
 
 =item B<< $plugin->pre_prepare($dist) >>
 
-Patch F<Makefile.PL> if necessary.
+Patch F<Makefile.PL>.
 
 =back
 
@@ -101,7 +101,7 @@ through the web interface at L<http://rt.cpan.org/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012, 2013 Andreas Voegele
+Copyright 2014 Andreas Voegele
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

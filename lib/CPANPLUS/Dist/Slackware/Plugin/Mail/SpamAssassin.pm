@@ -1,8 +1,5 @@
 package CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin;
-{
-  $CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin::VERSION = '1.016';
-}
-
+$CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin::VERSION = '1.017';
 use strict;
 use warnings;
 
@@ -121,8 +118,11 @@ Optional modules
 See the INSTALL file for a list of modules that SpamAssassin can optionally
 utilize.  Among the optional packages are:
 
-* perl-IP-Country
+* perl-Encode-Detect
+* perl-IO-Socket-IP
+* perl-Geo-IP
 * perl-Mail-SPF
+* perl-Net-Patricia
 * perl-ldap
 * perl-libwww
 
@@ -199,7 +199,7 @@ CPANPLUS::Dist::Slackware::Plugin::Mail::SpamAssassin - Add an init script and d
 
 =head1 VERSION
 
-version 1.016
+version 1.017
 
 =head1 SYNOPSIS
 
