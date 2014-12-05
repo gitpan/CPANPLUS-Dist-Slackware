@@ -1,5 +1,5 @@
 package CPANPLUS::Dist::Slackware;
-$CPANPLUS::Dist::Slackware::VERSION = '1.017';
+$CPANPLUS::Dist::Slackware::VERSION = '1.018';
 use strict;
 use warnings;
 
@@ -952,7 +952,7 @@ CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware Linux
 
 =head1 VERSION
 
-version 1.017
+version 1.018
 
 =head1 SYNOPSIS
 
