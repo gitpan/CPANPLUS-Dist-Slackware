@@ -1,7 +1,9 @@
 package CPANPLUS::Dist::Slackware::Plugin::GD;
-$CPANPLUS::Dist::Slackware::Plugin::GD::VERSION = '1.018';
+
 use strict;
 use warnings;
+
+our $VERSION = '1.019';
 
 use File::Spec qw();
 
@@ -60,11 +62,11 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::Plugin::GD - Patch C<GD>
+CPANPLUS::Dist::Slackware::Plugin::GD - Patch GD
 
 =head1 VERSION
 
-version 1.018
+This document describes CPANPLUS::Dist::Slackware::Plugin::GD version 1.019.
 
 =head1 SYNOPSIS
 
@@ -74,8 +76,9 @@ version 1.018
 =head1 DESCRIPTION
 
 Prefer Build.PL over the broken Makefile.PL when building GD 2.55 or 2.56.
-Only install the bdf2gdfont.pl script in /usr/bin.  Force the test suite to
-recreate the test image files as the tests are prone to fail.
+Only install the bdf2gdfont.pl script in /usr/bin and not the README file.
+Force the test suite to recreate the test image files as the tests are prone
+to fail.
 
 =head1 SUBROUTINES/METHODS
 
@@ -87,7 +90,7 @@ Returns true if this plugin applies to the given Perl distribution.
 
 =item B<< $plugin->pre_prepare($dist) >>
 
-Patch F<t/GD.t>.
+Patch F<Build.PL> and F<t/GD.t>.
 
 =back
 
@@ -101,7 +104,7 @@ None.
 
 =head1 DEPENDENCIES
 
-Requires the module C<File::Spec>.
+Requires the module File::Spec.
 
 =head1 INCOMPATIBILITIES
 
@@ -109,11 +112,11 @@ None known.
 
 =head1 SEE ALSO
 
-C<CPANPLUS::Dist::Slackware>
+CPANPLUS::Dist::Slackware
 
 =head1 AUTHOR
 
-Andreas Voegele  C<< <voegelas@cpan.org> >>
+Andreas Voegele E<lt>voegelas@cpan.orgE<gt>
 
 =head1 BUGS AND LIMITATIONS
 

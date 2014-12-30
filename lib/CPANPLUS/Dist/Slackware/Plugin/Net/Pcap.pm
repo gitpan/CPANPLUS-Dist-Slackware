@@ -1,7 +1,9 @@
 package CPANPLUS::Dist::Slackware::Plugin::Net::Pcap;
-$CPANPLUS::Dist::Slackware::Plugin::Net::Pcap::VERSION = '1.018';
+
 use strict;
 use warnings;
+
+our $VERSION = '1.019';
 
 use File::Spec qw();
 
@@ -41,11 +43,11 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::Plugin::Net::Pcap - Patch C<Net::Pcap> if necessary
+CPANPLUS::Dist::Slackware::Plugin::Net::Pcap - Patch Net::Pcap if necessary
 
 =head1 VERSION
 
-version 1.018
+This document describes CPANPLUS::Dist::Slackware::Plugin::Net::Pcap version 1.019.
 
 =head1 SYNOPSIS
 
@@ -80,7 +82,7 @@ None.
 
 =head1 DEPENDENCIES
 
-Requires the module C<File::Spec>.
+Requires the module File::Spec.
 
 =head1 INCOMPATIBILITIES
 
@@ -88,11 +90,11 @@ None known.
 
 =head1 SEE ALSO
 
-C<CPANPLUS::Dist::Slackware>
+CPANPLUS::Dist::Slackware
 
 =head1 AUTHOR
 
-Andreas Voegele  C<< <voegelas@cpan.org> >>
+Andreas Voegele E<lt>voegelas@cpan.orgE<gt>
 
 =head1 BUGS AND LIMITATIONS
 
@@ -101,7 +103,7 @@ through the web interface at L<http://rt.cpan.org/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012, 2013 Andreas Voegele
+Copyright 2012-2014 Andreas Voegele
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

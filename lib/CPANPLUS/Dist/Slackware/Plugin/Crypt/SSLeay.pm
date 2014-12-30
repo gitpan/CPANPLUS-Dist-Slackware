@@ -1,7 +1,9 @@
 package CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay;
-$CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay::VERSION = '1.018';
+
 use strict;
 use warnings;
+
+our $VERSION = '1.019';
 
 use File::Spec qw();
 
@@ -38,11 +40,11 @@ __END__
 
 =head1 NAME
 
-CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay - Patch C<Crypt::SSLeay> if necessary
+CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay - Patch Crypt::SSLeay if necessary
 
 =head1 VERSION
 
-version 1.018
+This document describes CPANPLUS::Dist::Slackware::Plugin::Crypt::SSLeay version 1.019.
 
 =head1 SYNOPSIS
 
@@ -51,10 +53,9 @@ version 1.018
 
 =head1 DESCRIPTION
 
-C<CPANPLUS> executes F<Makefile.PL> with C<do> but the F<Makefile.PL> of
-C<Crypt::SSLeay> exits without creating a F<Makefile> if the script is run in
-the context of another call.  Reported as bug #98108 at
-L<http://rt.cpan.org/>.
+CPANPLUS executes F<Makefile.PL> with C<do> but Crypt::SSLeay's F<Makefile.PL>
+exits without creating a F<Makefile> if the script is run in the context of
+another call.  Reported as bug #98108 at L<http://rt.cpan.org/>.
 
 =head1 SUBROUTINES/METHODS
 
@@ -80,7 +81,7 @@ None.
 
 =head1 DEPENDENCIES
 
-Requires the module C<File::Spec>.
+Requires the module File::Spec.
 
 =head1 INCOMPATIBILITIES
 
@@ -88,11 +89,11 @@ None known.
 
 =head1 SEE ALSO
 
-C<CPANPLUS::Dist::Slackware>
+CPANPLUS::Dist::Slackware
 
 =head1 AUTHOR
 
-Andreas Voegele  C<< <voegelas@cpan.org> >>
+Andreas Voegele E<lt>voegelas@cpan.orgE<gt>
 
 =head1 BUGS AND LIMITATIONS
 

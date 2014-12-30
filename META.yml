@@ -2,19 +2,29 @@
 abstract: 'Install Perl distributions on Slackware Linux'
 author:
   - 'Andreas Voegele <voegelas@cpan.org>'
-build_requires: {}
+build_requires:
+  Test::More: '0.96'
 configure_requires:
   ExtUtils::MakeMaker: '0'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 5.025, CPAN::Meta::Converter version 2.143240'
+generated_by: 'Dist::Zilla version 5.029, Dist::Milla version v1.0.9, CPAN::Meta::Converter version 2.143240'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: '1.4'
 name: CPANPLUS-Dist-Slackware
+no_index:
+  directory:
+    - t
+    - xt
+    - inc
+    - share
+    - eg
+    - examples
 requires:
   CPANPLUS: '0'
   Cwd: '0'
+  ExtUtils::Install: '0'
   File::Find: '0'
   File::Spec: '0'
   File::Temp: '0'
@@ -29,8 +39,8 @@ requires:
   Pod::Simple: '0'
   Text::Wrap: '0'
   parent: '0'
-  perl: '5.010'
+  perl: '5.012'
   version: '0.77'
 resources:
-  repository: git://github.com/voegelas/CPANPLUS-Dist-Slackware.git
-version: '1.018'
+  repository: https://github.com/voegelas/CPANPLUS-Dist-Slackware.git
+version: '1.019'

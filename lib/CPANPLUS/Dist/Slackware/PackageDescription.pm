@@ -1,7 +1,9 @@
 package CPANPLUS::Dist::Slackware::PackageDescription;
-$CPANPLUS::Dist::Slackware::PackageDescription::VERSION = '1.018';
+
 use strict;
 use warnings;
+
+our $VERSION = '1.019';
 
 use English qw( -no_match_vars );
 
@@ -394,8 +396,13 @@ sub _prereqs {
 
             # Omit modules that are distributed with Perl.
             my $version = $prereq_ref->{$srcname};
-            my $r = Module::CoreList->first_release( $srcname, $version );
-            next if defined $r && version->parse($r) <= $perl_version;
+            {
+                ## cpan2dist is run with -w, which triggers a warning in
+                ## Module::CoreList.
+                local ($WARNING) = 0;
+                my $r = Module::CoreList->first_release( $srcname, $version );
+                next if defined $r && version->parse($r) <= $perl_version;
+            }
 
             my $name = _normalize_name( $modobj->package_name );
             if ( !exists $prereqs{$name}
@@ -481,7 +488,7 @@ CPANPLUS::Dist::Slackware::PackageDescription - Collect information on a package
 
 =head1 VERSION
 
-version 1.018
+This document describes CPANPLUS::Dist::Slackware::PackageDescription version 1.019.
 
 =head1 SYNOPSIS
 
@@ -501,7 +508,7 @@ version 1.018
 =head1 DESCRIPTION
 
 This module gets information on a yet-to-be-created Slackware compatible
-package.  The information is obtained from a C<CPANPLUS::Module> object, the
+package.  The information is obtained from a CPANPLUS::Module object, the
 file system and the environment.  Among other things, the module translates a
 Perl distribution's name and version into a package name.  It tries to find a
 short summary that describes the distribution.  It can build a F<slack_desc>
@@ -521,12 +528,12 @@ Returns a newly constructed object.
         %attrs
     );
 
-The C<CPANPLUS::Module> object is mandatory.  All other attributes are
+The CPANPLUS::Module object is mandatory.  All other attributes are
 optional.
 
 =item B<< $pkgdesc->module >>
 
-Returns the C<CPANPLUS::Module> object that was passed to the constructor.
+Returns the CPANPLUS::Module object that was passed to the constructor.
 
 =item B<< $pkgdesc->normalized_name >>
 
@@ -639,14 +646,13 @@ None.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-See above and C<CPANPLUS::Dist::Slackware> for supported environment
-variables.
+See above and CPANPLUS::Dist::Slackware for supported environment variables.
 
 =head1 DEPENDENCIES
 
-Requires the modules C<File::Spec>, C<File::Temp>, C<Pod::Find>,
-C<Pod::Simple>, C<POSIX>, C<Text::Wrap>, and C<version> 0.77.  If available,
-the module C<Parse::CPAN::Meta> is used.
+Requires the modules File::Spec, File::Temp, Pod::Find, Pod::Simple, POSIX,
+Text::Wrap, and version 0.77.  If available, the module Parse::CPAN::Meta is
+used.
 
 =head1 INCOMPATIBILITIES
 
@@ -654,11 +660,11 @@ None known.
 
 =head1 SEE ALSO
 
-C<CPANPLUS::Dist::Slackware>
+CPANPLUS::Dist::Slackware
 
 =head1 AUTHOR
 
-Andreas Voegele  C<< <voegelas@cpan.org> >>
+Andreas Voegele E<lt>voegelas@cpan.orgE<gt>
 
 =head1 BUGS AND LIMITATIONS
 
@@ -667,7 +673,7 @@ through the web interface at L<http://rt.cpan.org/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012, 2013 Andreas Voegele
+Copyright 2012-2014 Andreas Voegele
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.

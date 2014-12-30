@@ -1,46 +1,334 @@
-This archive contains the distribution CPANPLUS-Dist-Slackware.
+NAME
 
-CPANPLUS-Dist-Slackware is a CPANPLUS plugin that creates Slackware compatible
-packages from Perl distributions.  You can either install the created packages
-using the API provided by CPANPLUS or manually via "installpkg".
+    CPANPLUS::Dist::Slackware - Install Perl distributions on Slackware
+    Linux
 
-    $ cpanp
-    CPAN Terminal> i Some::Module --format=CPANPLUS::Dist::Slackware
+VERSION
 
-    $ cpan2dist --format CPANPLUS::Dist::Slackware Some::Module
-    $ sudo /sbin/installpkg /tmp/perl-Some-Module-1.0-i486-1_CPANPLUS.tgz
+    This document describes CPANPLUS::Dist::Slackware version 1.019.
 
-INSTALLATION
+SYNOPSIS
 
-To install this module, run the following commands:
+        ### from the cpanp interactive shell
+        $ cpanp
+        CPAN Terminal> i Some::Module --format=CPANPLUS::Dist::Slackware
+    
+        ### using the command-line tool
+        $ cpan2dist --format CPANPLUS::Dist::Slackware Some::Module
+        $ sudo /sbin/installpkg /tmp/perl-Some-Module-1.0-i486-1_CPANPLUS.tgz
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+DESCRIPTION
+
+    Do you prefer to manage all software in your operating system's native
+    package format?
+
+    This CPANPLUS plugin creates Slackware compatible packages from Perl
+    distributions. You can either install the created packages using the
+    API provided by CPANPLUS or manually via installpkg.
+
+ Using CPANPLUS::Dist::Slackware
+
+    Start an interactive shell to edit the CPANPLUS settings:
+
+        $ cpanp
+        CPAN Terminal> s reconfigure
+
+    Once CPANPLUS is configured, modules can be installed. Example:
+
+        CPAN Terminal> i Smart::Comments --format=CPANPLUS::Dist::Slackware
+
+    You can make CPANPLUS::Dist::Slackware your default format by setting
+    the dist_type key:
+
+        CPAN Terminal> s conf dist_type CPANPLUS::Dist::Slackware
+
+    CPANPLUS sometimes fails to show interactive prompts if the verbose
+    option is not set. Thus you might want to enable verbose output:
+
+        CPAN Terminal> s conf verbose 1
+
+    Make your changes permanent:
+
+        CPAN Terminal> s save
+
+    User settings are stored in
+    $HOME/.cpanplus/lib/CPANPLUS/Config/User.pm.
+
+    Packages may also be created from the command-line. Example:
+
+        $ cpan2dist --format CPANPLUS::Dist::Slackware Smart::Comments
+        $ sudo /sbin/installpkg /tmp/perl-Smart-Comments-1.0.4-i486-1_CPANPLUS.tgz
+
+ Managing packages as a non-root user
+
+    The sudo command must be installed and configured. If the fakeroot
+    command is installed, packages will be built without the help of sudo.
+    Installing packages still requires root privileges though.
+
+ Documentation files
+
+    README files and changelogs are stored in a package-specific
+    subdirectory in /usr/doc. In addition, a README.SLACKWARE file that
+    lists the package's build dependencies is supplied.
+
+ Configuration files
+
+    Few Perl distributions provide configuration files in /etc but if such
+    a distribution, e.g. Mail::SpamAssassin, is updated you have to check
+    for new configuration files. The package's README.SLACKWARE file lists
+    the configuration files. Updated configuration files have got the
+    filename extension ".new" and must be merged by the system
+    administrator.
+
+SUBROUTINES/METHODS
+
+    CPANPLUS::Dist::Slackware->format_available
+
+      Returns a boolean indicating whether or not the Slackware Linux
+      package management tools are available.
+
+          $is_available = CPANPLUS::Dist::Slackware->format_available();
+
+    $dist->init
+
+      Sets up the CPANPLUS::Dist::Slackware object for use. Creates all the
+      needed status accessors.
+
+          $success = $dist->init();
+
+      Called automatically whenever a new CPANPLUS::Dist object is created.
+
+    $dist->prepare(%params)
+
+      Runs perl Makefile.PL or perl Build.PL and determines what
+      prerequisites this distribution declared.
+
+          $success = $dist->prepare(
+              perl    => '/path/to/perl',
+              force   => (1|0),
+              verbose => (1|0)
+          );
+
+      If you set force to true, it will go over all the stages of the
+      prepare process again, ignoring any previously cached results.
+
+      Returns true on success and false on failure.
+
+      You may then call $dist->create on the object to build the
+      distribution and to create a Slackware compatible package.
+
+    $dist->create(%params)
+
+      Builds the distribution, runs the test suite and executes makepkg to
+      create a Slackware compatible package. Also scans for and attempts to
+      satisfy any prerequisites the module may have.
+
+          $success = $dist->create(
+              perl        => '/path/to/perl',
+              make        => '/path/to/make',
+              skiptest    => (1|0),
+              force       => (1|0),
+              verbose     => (1|0)
+              keep_source => (1|0)
+          );
+
+      If you set skiptest to true, the test stage will be skipped. If you
+      set force to true, create will go over all the stages of the build
+      process again, ignoring any previously cached results. It will also
+      ignore a bad return value from the test stage and still allow the
+      operation to return true.
+
+      Returns true on success and false on failure.
+
+      You may then call $dist->install on the object to actually install
+      the created package.
+
+    $dist->install(%params)
+
+      Installs the package using upgradepkg --install-new --reinstall. If
+      the package is already installed on the system, the existing package
+      will be replaced by the new package.
+
+          $success = $dist->install(verbose => (1|0));
+
+      Returns true on success and false on failure.
+
+PLUGINS
+
+    You can write plugins to patch or customize Perl distributions. Put
+    your plugins into the CPANPLUS::Dist::Slackware::Plugin namespace.
+    Plugins can provide the following methods.
+
+    $plugin->available($dist)
+
+      This method, which must exist, returns true if the plugin applies to
+      the given distribution.
+
+    $plugin->pre_prepare($dist)
+
+      Use this method to patch a distribution or to set environment
+      variables that help to configure the distribution. Called before the
+      Perl distribution is prepared, i.e. before the command perl
+      Makefile.PL or perl Build.PL is run. Returns true on success.
+
+    $plugin->post_prepare($dist)
+
+      Use this method to, for example, unset previously set environment
+      variables. Called after the Perl distribution has been prepared.
+      Returns true on success.
+
+    $plugin->pre_package($dist)
+
+      This method is called after the Perl distribution has been installed
+      in the temporary staging directory and before a Slackware compatible
+      package is created. Use this method to install additional files like
+      init scripts or to append text to the README.SLACKWARE file. Returns
+      true on success.
+
+DIAGNOSTICS
+
+    In order to manage packages as a non-root user...
+
+      You are using CPANPLUS as a non-root user but sudo is not installed.
+
+    You do not have '/sbin/makepkg'...
+
+      The Slackware Linux package management tools are not installed.
+
+    Blacklisted file found...
+
+      Distributions are not allowed to install files outside of /etc, /usr,
+      /var and /opt.
+
+    Could not chdir into DIR
+
+      CPANPLUS::Dist::Slackware could not change its current directory
+      while building the package.
+
+    Could not create directory DIR
+
+      A directory could not be created. Are the parent directory's owner or
+      mode bits wrong? Is the file system mounted read-only?
+
+    Could not create file FILE
+
+      A file could not be opened for writing. Check your file and directory
+      permissions!
+
+    Could not write to file FILE
+
+      Is a file system, e.g. /tmp full?
+
+    Could not compress file FILE
+
+      A manual page could not be compressed.
+
+    Failed to copy FILE1 to FILE2
+
+      A file could not be copied.
+
+    Failed to move FILE1 to FILE2
+
+      A file could not be renamed.
+
+    Could not run COMMAND
+
+      An external command failed to execute.
+
+    No dir found to operate on!
+
+      For some reason, the Perl distribution's archive has not been
+      extracted by CPANPLUS.
+
+    Unknown type 'CPANPLUS::Dist::WHATEVER'
+
+      CPANPLUS::Dist::Slackware supports CPANPLUS::Dist::MM and
+      CPANPLUS::Dist::Build.
+
+CONFIGURATION AND ENVIRONMENT
+
+    Similar to the build scripts provided by http://slackbuilds.org/,
+    CPANPLUS::Dist::Slackware respects the following environment variables:
+
+    TMP
+
+      The staging directory where the Perl distributions are temporarily
+      installed. Defaults to $TMPDIR/CPANPLUS or to /tmp/CPANPLUS if
+      $ENV{TMPDIR} is not set.
+
+    OUTPUT
+
+      The package output directory where all created packages are stored.
+      Defaults to $TMPDIR or /tmp.
+
+    ARCH
+
+      The package architecture. Defaults to "i486" on x86-based platforms,
+      to "arm" on ARM-based platforms and to the system's hardware
+      identifier, i.e. the output of uname -m on all other platforms.
+
+    BUILD
+
+      The build number that is added to the filename. Defaults to "1".
+
+      As packages may be built recursively, setting this variable is mainly
+      useful when all packages are rebuilt, e.g. after Perl has been
+      upgraded.
+
+    TAG
+
+      This tag is added to the package filename. Defaults to "_CPANPLUS".
+
+    PKGTYPE
+
+      The package extension. Defaults to "tgz". May be set to "tbz", "tlz"
+      or "txz". The proper compression utility, i.e. gzip, bzip2, lzma, or
+      xz, needs to be installed on the machine.
 
 DEPENDENCIES
 
-Slackware Linux 12.2 and Perl 5.10 or better and the sudo command are required.
-The fakeroot command is highly recommended.  You can download a script that
-builds fakeroot from http://slackbuilds.org/.
+    Requires the Slackware Linux package management tools makepkg,
+    installpkg, updatepkg, and removepkg. Other required commands are
+    chown, file, gcc, make, and strip.
 
-SUPPORT AND DOCUMENTATION
+    In order to manage packages as a non-root user, which is highly
+    recommended, you must have sudo and, optionally, fakeroot. You can
+    download a script that builds fakeroot from http://slackbuilds.org/.
 
-Type "perldoc CPANPLUS::Dist::Slackware" after installation to see the module
-usage information.
+    CPANPLUS::Dist::Slackware requires the modules CPANPLUS, Cwd,
+    File::Find, File::Spec, IO::Compress::Gzip, IPC:Cmd,
+    Locale::Maketext::Simple, and Params::Check.
 
-If you want to hack on the source it might be a good idea to install
-Dist::Zilla and grab the latest version with git using the command:
+INCOMPATIBILITIES
 
-    git clone git://github.com/voegelas/CPANPLUS-Dist-Slackware.git
+    Packages created with CPANPLUS::Dist::Slackware may conflict with
+    packages from http://slackbuilds.org/ and packages created with
+    cpan2tgz.
+
+SEE ALSO
+
+    cpanp(1), cpan2dist(1), sudo(8), fakeroot(1), CPANPLUS::Dist::MM,
+    CPANPLUS::Dist::Build, CPANPLUS::Dist::Base
+
+AUTHOR
+
+    Andreas Voegele <voegelas@cpan.org>
+
+BUGS AND LIMITATIONS
+
+    CPANPLUS sometimes fails to show interactive prompts if the verbose
+    option is not set. This has been reported as bug #47818 and bug #72095
+    at http://rt.cpan.org/.
+
+    Please report any bugs to bug-cpanplus-dist-slackware at rt.cpan.org,
+    or through the web interface at http://rt.cpan.org/.
 
 LICENSE AND COPYRIGHT
 
-Copyright 2012, 2013, 2014 Andreas Voegele
+    Copyright 2012-2014 Andreas Voegele
 
-This library is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
 
-See http://dev.perl.org/licenses/ for more information.
+    See http://dev.perl.org/licenses/ for more information.
 
